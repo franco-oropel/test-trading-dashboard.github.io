@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            padding: 2rem;
+            color: #fff;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 500;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 24px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .trading-config {
+            background: linear-gradient(145deg, rgba(147, 151, 189, 0.2), rgba(147, 151, 189, 0.1));
+        }
+
+        .update-controls {
+            background: linear-gradient(145deg, rgba(244, 143, 177, 0.15), rgba(244, 143, 177, 0.05));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .price-table {
+            background: linear-gradient(145deg, rgba(103, 232, 249, 0.15), rgba(103, 232, 249, 0.05));
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        select, input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: white;
+            font-size: 1rem;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        button {
+            background: rgba(244, 143, 177, 0.3);
+            border: 2px solid rgba(244, 143, 177, 0.5);
+            border-radius: 12px;
+            padding: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        button:hover {
+            background: rgba(244, 143, 177, 0.5);
+        }
+
+        .timer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        #countdown {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f48fb1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th, td {
+            padding: 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1rem;
+        }
+
+        th {
+            font-weight: 500;
+            color: rgba(103, 232, 249, 0.9);
+        }
+
+        td {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        td:first-child {
+            color: rgba(103, 232, 249, 0.9);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .timer-button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .left-column {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>Trading Dashboard</h1>
+        
+        <div class="grid-container">
+            <div class="left-column">
+                <!-- Trading Configuration Section -->
+                <div class="card trading-config">
+                    <div class="control-group">
+                        <label for="pair">Trading Pair</label>
+                        <select id="pair">
+                            <option value="EURUSDT">EUR/USDT</option>
+                            <option value="BTCUSDT">BTC/USDT</option>
+                            <option value="ETHUSDT">ETH/USDT</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="type">Type</label>
+                        <select id="type">
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="commission">Commission (%)</label>
+                        <input type="number" id="commission" value="1" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Update Controls Section -->
+                <div class="card update-controls">
+                    <div class="section-title">APIs Settings</div>
+                    <div class="control-group">
+                        <label for="interval">Update Interval (seconds)</label>
+                        <input type="number" id="interval" value="30" min="5" step="1">
+                    </div>
+                    <div class="timer-button-container">
+                        <div class="timer">
+                            Next update in: <span id="countdown">30</span> seconds
+                        </div>
+                        <button id="toggleButton">Pause Updates</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price Table Section -->
+            <div class="card price-table">
+                <div class="section-title">Market Prices</div>
+                <table id="priceTable">
+                    <thead>
+                        <tr>
+                            <th>Exchange</th>
+                            <th>Market Price</th>
+                            <th>Your Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const exchanges = ['Kraken', 'Binance', 'Stillman', 'OKX'];
+        const tableBody = document.querySelector('#priceTable tbody');
+        let updateInterval = 30000; // Default: 30 seconds
+        let intervalId;
+        let countdownId;
+        let countdownValue = 30;
+        let isPaused = false;
+    
+        async function fetchBinancePrice(pair) {
+            try {
+                const response = await fetch(`https://api.binance.com/api/v3/ticker/bookTicker?symbol=${pair}`);
+                if (!response.ok) throw new Error('Failed to fetch data from Binance');
+                const data = await response.json();
+                return {
+                    buy: parseFloat(data.askPrice),
+                    sell: parseFloat(data.bidPrice),
+                };
+            } catch (error) {
+                console.error('Error fetching Binance data:', error);
+                return { buy: 0, sell: 0 }; // Fallback in case of error
+            }
+        }
+    
+        async function fetchKrakenPrice(pair) {
+            try {
+                // Convertir "EURUSDT" al formato invertido "USDTEUR"
+                const krakenPair = `${pair.slice(3)}${pair.slice(0, 3)}`;
+                
+                const response = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${krakenPair}`);
+                if (!response.ok) throw new Error('Failed to fetch data from Kraken');
+                const data = await response.json();
+                
+                // Obtener los datos del par correspondiente
+                const ticker = Object.values(data.result)[0];
+
+                // Invertir precios: buy = 1 / ask, sell = 1 / bid
+                return {
+                    buy: 1 / parseFloat(ticker.a[0]), // Precio de compra invertido
+                    sell: 1 / parseFloat(ticker.b[0]), // Precio de venta invertido
+                };
+            } catch (error) {
+                console.error('Error fetching Kraken data:', error);
+                return { buy: 0, sell: 0 }; // Fallback en caso de error
+            }
+        }
+    
+        async function fetchOKXPrice(pair) {
+        try {
+            const okxPair = `${pair.slice(3)}-${pair.slice(0, 3)}`; // Formato: USDT-EUR
+            const response = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${okxPair}`);
+            if (!response.ok) throw new Error('Failed to fetch data from OKX');
+            const data = await response.json();
+            const ticker = data.data[0];
+            
+            // Invertir los precios
+            return {
+                buy: 1 / parseFloat(ticker.askPx), // Invertir precio de compra (ask)
+                sell: 1 / parseFloat(ticker.bidPx), // Invertir precio de venta (bid)
+            };
+        } catch (error) {
+            console.error('Error fetching OKX data:', error);
+            return { buy: 0, sell: 0 }; // Fallback en caso de error
+        }
+    }
+    
+        async function updatePrices() {
+            if (isPaused) return; // Skip updates if paused
+    
+            const pair = document.querySelector('#pair').value;
+            const type = document.querySelector('#type').value;
+            const commission = parseFloat(document.querySelector('#commission').value) / 100;
+    
+            // Fetch data for each exchange
+            const [binanceData, krakenData, okxData] = await Promise.all([
+                fetchBinancePrice(pair),
+                fetchKrakenPrice(pair),
+                fetchOKXPrice(pair),
+            ]);
+    
+            // Simulated data for other exchanges
+            const mockData = {
+                Stillman: { buy: 0.96333, sell: 0.96333 },
+            };
+    
+            // Combine all data
+            const marketPrices = {
+                Kraken: krakenData,
+                Binance: binanceData,
+                Stillman: mockData.Stillman,
+                OKX: okxData,
+            };
+    
+            tableBody.innerHTML = ''; // Clear the table
+    
+            exchanges.forEach(exchange => {
+                const data = marketPrices[exchange];
+                const adjustedPrice = type === 'buy'
+                    ? data.buy * (1 + commission)
+                    : data.sell * (1 - commission);
+    
+                const row = `
+                    <tr>
+                        <td>${exchange}</td>
+                        <td>${(type === 'buy' ? data.buy : data.sell).toFixed(5)}</td>
+                        <td class="your-price">${adjustedPrice.toFixed(5)}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+    
+            resetCountdown();
+        }
+    
+        function updateIntervalHandler() {
+            const intervalInput = document.querySelector('#interval').value;
+            const newInterval = Math.max(parseInt(intervalInput, 10) * 1000, 5000); // Minimum: 5 seconds
+    
+            clearInterval(intervalId); // Clear the previous interval
+            clearInterval(countdownId); // Clear the countdown
+            updateInterval = newInterval; // Update the interval value
+            countdownValue = newInterval / 1000; // Update the countdown value
+            if (!isPaused) {
+                intervalId = setInterval(updatePrices, updateInterval); // Start the new interval
+            }
+            resetCountdown();
+        }
+    
+        function resetCountdown() {
+            clearInterval(countdownId); // Clear the previous countdown
+            countdownValue = updateInterval / 1000; // Reset countdown value
+            const countdownElement = document.querySelector('#countdown');
+            countdownElement.textContent = countdownValue;
+    
+            countdownId = setInterval(() => {
+                if (!isPaused) {
+                    countdownValue -= 1;
+                    countdownElement.textContent = countdownValue;
+                    if (countdownValue <= 0) {
+                        clearInterval(countdownId);
+                    }
+                }
+            }, 1000);
+        }
+    
+        function toggleUpdates() {
+            const button = document.querySelector('#toggleButton');
+            if (isPaused) {
+                // Resume updates
+                isPaused = false;
+                button.textContent = 'Pause Updates';
+                intervalId = setInterval(updatePrices, updateInterval);
+                resetCountdown();
+            } else {
+                // Pause updates
+                isPaused = true;
+                button.textContent = 'Resume Updates';
+                clearInterval(intervalId); // Stop the interval
+                clearInterval(countdownId); // Stop the countdown
+            }
+        }
+    
+        // Attach event listeners
+        document.querySelector('#pair').addEventListener('change', updatePrices);
+        document.querySelector('#type').addEventListener('change', updatePrices);
+        document.querySelector('#commission').addEventListener('input', updatePrices);
+        document.querySelector('#interval').addEventListener('input', updateIntervalHandler);
+        document.querySelector('#toggleButton').addEventListener('click', toggleUpdates);
+    
+        // Initialize
+        updatePrices();
+        intervalId = setInterval(updatePrices, updateInterval);
+        resetCountdown();
+    </script>
+    
+    
+</body>
+</html>
