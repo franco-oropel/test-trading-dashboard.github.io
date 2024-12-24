@@ -79,7 +79,7 @@ async function updatePrices() {
 
     // Simulated data for other exchanges
     const mockData = {
-        Stillman: { buy: 0.96333, sell: 0.96333 },
+        Stillman: { buy: 0.00, sell: 0.00 },
     };
 
     // Combine all data
