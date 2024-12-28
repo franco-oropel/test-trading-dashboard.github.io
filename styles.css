@@ -83,6 +83,22 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
+.control-group-seconds {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.control-group-seconds label {
+  margin-right: 10px;
+}
+
+.control-group-seconds select {
+  flex-grow: 1;
+}
+
 label {
   font-size: 1rem;
   color: rgba(255, 255, 255, 0.7);
@@ -166,7 +182,9 @@ td {
 }
 
 td:first-child {
-  color: rgba(103, 232, 249, 0.9);
+  color: rgba(235, 237, 237, 0.9);
+  font-family: 'Lato', sans-serif;
+  font-style: italic;
 }
 
 .section-title {
@@ -193,4 +211,9 @@ td:first-child {
   .left-column {
     order: -1;
   }
+}
+
+.best-price {
+  background-color: rgba(100, 96, 121, 0.7);
+  color: white;
 }

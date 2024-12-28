@@ -18,6 +18,7 @@
                         <label for="pair">Trading Pair</label>
                         <select id="pair">
                             <option value="EURUSDT">EUR/USDT</option>
+                            <option value="USDUSDT">USD/USDT</option>
                         </select>
                     </div>
                     <div class="control-group">
@@ -36,28 +37,35 @@
                 <!-- Update Controls Section -->
                 <div class="card update-controls">
                     <div class="section-title">APIs Settings</div>
-                    <div class="control-group">
+                    <div class="control-group-seconds">
                         <label for="interval">Update Interval (seconds)</label>
-                        <input type="number" id="interval" value="30" min="5" step="1">
+                        <!-- <input type="number" id="interval" value="30" min="5" step="1"> -->
+                        <select id="interval">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="20">20</option>
+                            <option value="25">25</option>
+                            <option value="30">30</option>
+                        </select>
                     </div>
                     <div class="timer-button-container">
                         <div class="timer">
                             Next update in: <span id="countdown">30</span> seconds
                         </div>
-                        <button id="toggleButton">Pause Updates</button>
+                        <button id="toggleButton">PAUSE</button>
                     </div>
                 </div>
             </div>
 
             <!-- Price Table Section -->
             <div class="card price-table">
-                <div class="section-title">Market Prices</div>
                 <table id="priceTable">
                     <thead>
                         <tr>
-                            <th>Exchange</th>
-                            <th>Market Price</th>
-                            <th>Your Price</th>
+                            <th><b>Exchange</b></th>
+                            <th><b>Market Price</b></th>
+                            <th><b>Your Price</b></th>
                         </tr>
                     </thead>
                     <tbody>

@@ -1,4 +1,4 @@
-const exchanges = ['Kraken', 'Binance', 'Stillman', 'OKX'];
+const exchanges = ['Kraken', 'Binance', 'Stillman', 'OKX', 'KuCoin', 'Bybit', 'Bitstamp'];
 const tableBody = document.querySelector('#priceTable tbody');
 let updateInterval = 30000; // Default: 30 seconds
 let intervalId;
@@ -17,50 +17,126 @@ async function fetchBinancePrice(pair) {
         };
     } catch (error) {
         console.error('Error fetching Binance data:', error);
-        return { buy: 0, sell: 0 }; // Fallback in case of error
+        return { buy: 0, sell: 0 };
     }
 }
 
 async function fetchKrakenPrice(pair) {
     try {
-        // Convertir "EURUSDT" al formato invertido "USDTEUR"
-        const krakenPair = `${pair.slice(3)}${pair.slice(0, 3)}`;
+        const krakenPair = `${pair.slice(3)}${pair.slice(0, 3)}`; // Formato: USDTEUR
         
         const response = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${krakenPair}`);
         if (!response.ok) throw new Error('Failed to fetch data from Kraken');
         const data = await response.json();
         
-        // Obtener los datos del par correspondiente
         const ticker = Object.values(data.result)[0];
 
-        // Invertir precios: buy = 1 / ask, sell = 1 / bid
         return {
-            buy: 1 / parseFloat(ticker.a[0]), // Precio de compra invertido
-            sell: 1 / parseFloat(ticker.b[0]), // Precio de venta invertido
+            buy: 1 / parseFloat(ticker.a[0]),
+            sell: 1 / parseFloat(ticker.b[0]),
         };
     } catch (error) {
         console.error('Error fetching Kraken data:', error);
-        return { buy: 0, sell: 0 }; // Fallback en caso de error
+        return { buy: 0, sell: 0 };
+    }
+}
+
+async function fetchStillmanPrice(pair) {
+    try {
+       throw new Error('Failed to fetch data from Stillman');
+    } catch (error) {
+        console.error('Error fetching Stillman data:', error);
+        return { buy: 0, sell: 0 };
     }
 }
 
 async function fetchOKXPrice(pair) {
-try {
-    const okxPair = `${pair.slice(3)}-${pair.slice(0, 3)}`; // Formato: USDT-EUR
-    const response = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${okxPair}`);
-    if (!response.ok) throw new Error('Failed to fetch data from OKX');
-    const data = await response.json();
-    const ticker = data.data[0];
-    
-    // Invertir los precios
-    return {
-        buy: 1 / parseFloat(ticker.askPx), // Invertir precio de compra (ask)
-        sell: 1 / parseFloat(ticker.bidPx), // Invertir precio de venta (bid)
-    };
-} catch (error) {
-    console.error('Error fetching OKX data:', error);
-    return { buy: 0, sell: 0 }; // Fallback en caso de error
+    try {
+        const okxPair = `${pair.slice(3)}-${pair.slice(0, 3)}`; // Formato: USDT-EUR
+        const response = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${okxPair}`);
+        if (!response.ok) throw new Error('Failed to fetch data from OKX');
+        const data = await response.json();
+        const ticker = data.data[0];
+        
+        // Invertir los precios
+        return {
+            buy: 1 / parseFloat(ticker.askPx),
+            sell: 1 / parseFloat(ticker.bidPx),
+        };
+    } catch (error) {
+        console.error('Error fetching OKX data:', error);
+        return { buy: 0, sell: 0 };
+    }
 }
+
+async function fetchKucoinPrice(pair) {
+    try {
+        throw new Error("Failed to fetch data from KuCoin");
+        const kucoinPair = `${pair.slice(3)}-${pair.slice(0, 3)}`; // Formato: USDT-EUR
+
+        const response = await fetch(`https://api.kucoin.com/api/v1/market/orderbook/level1?symbol=${kucoinPair}`);
+
+        if (!response.ok) throw new Error("Failed to fetch data from KuCoin");
+        const data = await response.json();
+
+        if (!data.data || !data.data.bestAsk || !data.data.bestBid) {
+            throw new Error("Invalid data format from KuCoin API");
+        }
+
+        return {
+            buy: 1 / parseFloat(data.data.bestAsk),
+            sell: 1 / parseFloat(data.data.bestBid),
+        };
+    } catch (error) {
+        console.error("Error fetching KuCoin data:", error);
+        return { buy: 0, sell: 0 };
+    }
+}
+
+async function fetchBybitPrice(pair) {
+    try {
+        const bybitPair = `${pair.slice(3)}${pair.slice(0, 3)}`; // Formato: "USDT-EUR"
+
+        const response = await fetch(`https://api.bybit.com/v5/market/tickers?category=spot&symbol=${bybitPair}`);
+
+        if (!response.ok) throw new Error("Failed to fetch data from Bybit");
+        const data = await response.json();
+
+        if (!data.result || !data.result.list[0].bid1Price || !data.result.list[0].ask1Price) {
+            throw new Error("Invalid data format from Bybit API");
+        }
+
+        return {
+            buy: 1 / parseFloat(data.result.list[0].ask1Price),
+            sell: 1 / parseFloat(data.result.list[0].bid1Price),
+        };
+    } catch (error) {
+        console.error("Error fetching Bybit data:", error);
+        return { buy: 0, sell: 0 };
+    }
+}
+
+async function fetchBitstampPrice(pair) {
+    try {
+        const bitstampPair = `${pair.slice(3)}${pair.slice(0, 3)}`; // Formato: usdteur
+
+        const response = await fetch(`https://www.bitstamp.net/api/v2/ticker/${bitstampPair.toLowerCase()}`);
+
+        if (!response.ok) throw new Error("Failed to fetch data from Bitstamp");
+        const data = await response.json();
+
+        if (!data || !data.bid || !data.ask) {
+            throw new Error("Invalid data format from Bitstamp API");
+        }
+
+        return {
+            buy: 1 / parseFloat(data.ask),
+            sell: 1 / parseFloat(data.bid),
+        };
+    } catch (error) {
+        console.error("Error fetching Bitstamp data:", error);
+        return { buy: 0, sell: 0 };
+    }
 }
 
 async function updatePrices() {
@@ -71,40 +147,57 @@ async function updatePrices() {
     const commission = parseFloat(document.querySelector('#commission').value) / 100;
 
     // Fetch data for each exchange
-    const [binanceData, krakenData, okxData] = await Promise.all([
+    const [binanceData, krakenData, stillmanData, okxData, kucoinData, bybitData, bitstampData] = await Promise.all([
         fetchBinancePrice(pair),
         fetchKrakenPrice(pair),
+        fetchStillmanPrice(pair),
         fetchOKXPrice(pair),
+        fetchKucoinPrice(pair),
+        fetchBybitPrice(pair),
+        fetchBitstampPrice(pair),
     ]);
-
-    // Simulated data for other exchanges
-    const mockData = {
-        Stillman: { buy: 0.00, sell: 0.00 },
-    };
 
     // Combine all data
     const marketPrices = {
         Kraken: krakenData,
         Binance: binanceData,
-        Stillman: mockData.Stillman,
+        Stillman: stillmanData,
         OKX: okxData,
+        KuCoin: kucoinData,
+        Bybit: bybitData,
+        Bitstamp: bitstampData,
     };
 
     tableBody.innerHTML = ''; // Clear the table
 
+    let bestPrice = null;
+    let bestExchange = null;
+
     exchanges.forEach(exchange => {
         const data = marketPrices[exchange];
+        const price = type === 'buy' ? data.buy : data.sell;
+    
+        if (price !== 0 && (bestPrice === null || (type === 'buy' ? price < bestPrice : price > bestPrice))) {
+            bestPrice = price;
+            bestExchange = exchange;
+        }
+    });
+
+    exchanges.forEach(exchange => {
+        const data = marketPrices[exchange];
+        const price = type === 'buy' ? data.buy : data.sell;
         const adjustedPrice = type === 'buy'
-            ? data.buy * (1 + commission)
-            : data.sell * (1 - commission);
+            ? data.buy * (1 - commission)
+            : data.sell * (1 + commission);
 
         const row = `
-            <tr>
+            <tr class="${exchange === bestExchange ? 'best-price' : ''}">
                 <td>${exchange}</td>
-                <td>${(type === 'buy' ? data.buy : data.sell).toFixed(5)}</td>
-                <td class="your-price">${adjustedPrice.toFixed(5)}</td>
+                <td>${price === 0 ? '❌' : price.toFixed(5)}</td>
+                <td>${price === 0 ? '❌' : adjustedPrice.toFixed(5)}</td>
             </tr>
         `;
+
         tableBody.innerHTML += row;
     });
 
@@ -147,13 +240,13 @@ function toggleUpdates() {
     if (isPaused) {
         // Resume updates
         isPaused = false;
-        button.textContent = 'Pause Updates';
+        button.textContent = 'PAUSE';
         intervalId = setInterval(updatePrices, updateInterval);
         resetCountdown();
     } else {
         // Pause updates
         isPaused = true;
-        button.textContent = 'Resume Updates';
+        button.textContent = 'PLAY';
         clearInterval(intervalId); // Stop the interval
         clearInterval(countdownId); // Stop the countdown
     }
