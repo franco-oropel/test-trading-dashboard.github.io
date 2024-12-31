@@ -8,12 +8,14 @@ let isPaused = false;
 
 async function fetchBinancePrice(pair) {
     try {
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/bookTicker?symbol=${pair}`);
+        const binancePair = `${pair.slice(4)}${pair.slice(0, 4)}`; // Formato: EURUSDT
+        
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/bookTicker?symbol=${binancePair}`);
         if (!response.ok) throw new Error('Failed to fetch data from Binance');
         const data = await response.json();
         return {
-            buy: parseFloat(data.askPrice),
-            sell: parseFloat(data.bidPrice),
+            buy: 1 / parseFloat(data.askPrice),
+            sell: 1 / parseFloat(data.bidPrice),
         };
     } catch (error) {
         console.error('Error fetching Binance data:', error);
@@ -23,17 +25,15 @@ async function fetchBinancePrice(pair) {
 
 async function fetchKrakenPrice(pair) {
     try {
-        const krakenPair = `${pair.slice(3)}${pair.slice(0, 3)}`; // Formato: USDTEUR
-        
-        const response = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${krakenPair}`);
+        const response = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${pair}`);
         if (!response.ok) throw new Error('Failed to fetch data from Kraken');
         const data = await response.json();
         
         const ticker = Object.values(data.result)[0];
 
         return {
-            buy: 1 / parseFloat(ticker.a[0]),
-            sell: 1 / parseFloat(ticker.b[0]),
+            buy: parseFloat(ticker.a[0]),
+            sell: parseFloat(ticker.b[0]),
         };
     } catch (error) {
         console.error('Error fetching Kraken data:', error);
@@ -43,7 +43,16 @@ async function fetchKrakenPrice(pair) {
 
 async function fetchStillmanPrice(pair) {
     try {
-       throw new Error('Failed to fetch data from Stillman');
+        if(pair === 'USDTUSD') {
+            throw new Error('USDTUSD pair is not supported by Stillman yet');
+        }
+        const response = await fetch(`https://trading-dashboard-app-abwdihbx-e82b79b43422.herokuapp.com/api/stillman-rate`);
+        if (!response.ok) throw new Error('Failed to fetch data from Kraken');
+        const data = await response.json();
+        return {
+            buy: parseFloat(data.buyRate),
+            sell: parseFloat(data.sellRate),
+        };
     } catch (error) {
         console.error('Error fetching Stillman data:', error);
         return { buy: 0, sell: 0 };
@@ -52,7 +61,7 @@ async function fetchStillmanPrice(pair) {
 
 async function fetchOKXPrice(pair) {
     try {
-        const okxPair = `${pair.slice(3)}-${pair.slice(0, 3)}`; // Formato: USDT-EUR
+        const okxPair = `${pair.slice(0, 4)}-${pair.slice(4)}`; // Formato: USDT-EUR
         const response = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${okxPair}`);
         if (!response.ok) throw new Error('Failed to fetch data from OKX');
         const data = await response.json();
@@ -60,8 +69,8 @@ async function fetchOKXPrice(pair) {
         
         // Invertir los precios
         return {
-            buy: 1 / parseFloat(ticker.askPx),
-            sell: 1 / parseFloat(ticker.bidPx),
+            buy: parseFloat(ticker.askPx),
+            sell: parseFloat(ticker.bidPx),
         };
     } catch (error) {
         console.error('Error fetching OKX data:', error);
@@ -95,7 +104,7 @@ async function fetchKucoinPrice(pair) {
 
 async function fetchBybitPrice(pair) {
     try {
-        const bybitPair = `${pair.slice(3)}${pair.slice(0, 3)}`; // Formato: "USDT-EUR"
+        const bybitPair = `${pair.slice(0, 4)}${pair.slice(4)}`; // Formato: "USDTEUR"
 
         const response = await fetch(`https://api.bybit.com/v5/market/tickers?category=spot&symbol=${bybitPair}`);
 
@@ -107,8 +116,8 @@ async function fetchBybitPrice(pair) {
         }
 
         return {
-            buy: 1 / parseFloat(data.result.list[0].ask1Price),
-            sell: 1 / parseFloat(data.result.list[0].bid1Price),
+            buy: parseFloat(data.result.list[0].ask1Price),
+            sell: parseFloat(data.result.list[0].bid1Price),
         };
     } catch (error) {
         console.error("Error fetching Bybit data:", error);
@@ -118,9 +127,7 @@ async function fetchBybitPrice(pair) {
 
 async function fetchBitstampPrice(pair) {
     try {
-        const bitstampPair = `${pair.slice(3)}${pair.slice(0, 3)}`; // Formato: usdteur
-
-        const response = await fetch(`https://www.bitstamp.net/api/v2/ticker/${bitstampPair.toLowerCase()}`);
+        const response = await fetch(`https://www.bitstamp.net/api/v2/ticker/${pair.toLowerCase()}`);
 
         if (!response.ok) throw new Error("Failed to fetch data from Bitstamp");
         const data = await response.json();
@@ -130,8 +137,8 @@ async function fetchBitstampPrice(pair) {
         }
 
         return {
-            buy: 1 / parseFloat(data.ask),
-            sell: 1 / parseFloat(data.bid),
+            buy: parseFloat(data.ask),
+            sell: parseFloat(data.bid),
         };
     } catch (error) {
         console.error("Error fetching Bitstamp data:", error);
