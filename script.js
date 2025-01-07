@@ -194,8 +194,8 @@ async function updatePrices() {
         const data = marketPrices[exchange];
         const price = type === 'buy' ? data.buy : data.sell;
         const adjustedPrice = type === 'buy'
-            ? data.buy * (1 - commission)
-            : data.sell * (1 + commission);
+            ? data.buy * (1 + commission)
+            : data.sell * (1 - commission);
 
         const row = `
             <tr class="${exchange === bestExchange ? 'best-price' : ''}">
