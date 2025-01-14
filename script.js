@@ -263,10 +263,11 @@ function toggleUpdates() {
 document.querySelector('#pair').addEventListener('change', updatePrices);
 document.querySelector('#type').addEventListener('change', updatePrices);
 document.querySelector('#commission').addEventListener('input', updatePrices);
-document.querySelector('#interval').addEventListener('input', updateIntervalHandler);
-document.querySelector('#toggleButton').addEventListener('click', toggleUpdates);
+// document.querySelector('#interval').addEventListener('input', updateIntervalHandler);
+// document.querySelector('#toggleButton').addEventListener('click', toggleUpdates);
+document.querySelector('#toggleButton').addEventListener('click', updatePrices);
 
 // Initialize
 updatePrices();
-intervalId = setInterval(updatePrices, updateInterval);
-resetCountdown();
+// intervalId = setInterval(updatePrices, updateInterval);
+// resetCountdown();
