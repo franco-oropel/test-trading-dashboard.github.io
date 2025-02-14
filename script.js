@@ -43,7 +43,7 @@ async function fetchKrakenPrice(pair) {
 
 async function fetchStillmanPrice(pair) {
     try {
-        const response = null;
+        let response = null;
         if(pair === 'USDTUSD') response = await fetch(`https://trading-dashboard-app-abwdihbx-e82b79b43422.herokuapp.com/api/stillman-rate?pair=USDT/USD`);
         if(pair === 'USDTEUR') response = await fetch(`https://trading-dashboard-app-abwdihbx-e82b79b43422.herokuapp.com/api/stillman-rate?pair=USDT/EUR`);
         
