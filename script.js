@@ -43,11 +43,11 @@ async function fetchKrakenPrice(pair) {
 
 async function fetchStillmanPrice(pair) {
     try {
-        if(pair === 'USDTUSD') {
-            throw new Error('USDTUSD pair is not supported by Stillman yet');
-        }
-        const response = await fetch(`https://trading-dashboard-app-abwdihbx-e82b79b43422.herokuapp.com/api/stillman-rate`);
-        if (!response.ok) throw new Error('Failed to fetch data from Kraken');
+        const response = null;
+        if(pair === 'USDTUSD') response = await fetch(`https://trading-dashboard-app-abwdihbx-e82b79b43422.herokuapp.com/api/stillman-rat?pair=USDT/USD`);
+        if(pair === 'USDTEUR') response = await fetch(`https://trading-dashboard-app-abwdihbx-e82b79b43422.herokuapp.com/api/stillman-rate?pair=USDT/EUR`);
+        
+        if (!response.ok) throw new Error('Failed to fetch data from Stillman');
         const data = await response.json();
         return {
             buy: parseFloat(data.buyRate),
